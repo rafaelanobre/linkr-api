@@ -4,11 +4,11 @@ import { createPostDB } from "../repositories/post.repository.js";
 
 export async function publishPostForTimeline(req, res) {
     const { url, description } = req.body;
-    const createdby = res.locals.userId;
-    const createdat = new Date();
+    const createdBy = res.locals.userId;
+    const createdAt = new Date();
 
     try {
-        const post = await createPostDB(createdby, createdat, url, description); 
+        const post = await createPostDB(createdBy, createdAt, url, description); 
         
         res.status(200).send(post.rows[0]);
     } catch (err) {
