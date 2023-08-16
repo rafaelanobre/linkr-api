@@ -1,10 +1,11 @@
 import { Router } from "express";
+import { publishPostForTimeline } from "../controllers/posts.controller.js";
 import { getPostsForTimeline } from "../controllers/posts.controller.js";
 
 const postsRouter = Router();
 
 postsRouter.get("/posts", getPostsForTimeline);
-postsRouter.post("/posts", );
+postsRouter.post("/post", publishPostForTimeline);
 postsRouter.delete("/posts", );
 postsRouter.put("/posts", );
 
