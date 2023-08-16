@@ -1,8 +1,12 @@
 import { Router } from "express";
 import { publishPostForTimeline } from "../controllers/posts.controller.js";
+import { getPostsForTimeline } from "../controllers/posts.controller.js";
 
-const publishRouter = Router();
+const postsRouter = Router();
 
-publishRouter.post("/post", publishPostForTimeline);
+postsRouter.get("/posts", getPostsForTimeline);
+postsRouter.post("/post", publishPostForTimeline);
+postsRouter.delete("/posts", );
+postsRouter.put("/posts", );
 
-export default publishRouter;
+export default postsRouter;
