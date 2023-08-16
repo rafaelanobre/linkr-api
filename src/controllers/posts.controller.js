@@ -7,7 +7,8 @@ export async function getPostsForTimeline(req,res){
             p.id AS "postId",
             p.url,
             p.description,
-            u.name AS "userName"
+            u.name AS "userName",
+            u.photo AS "userPhoto"
         FROM 
             posts p
         LEFT JOIN 
