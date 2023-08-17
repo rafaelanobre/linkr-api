@@ -3,6 +3,7 @@ import { createPostDB } from "../repositories/post.repository.js";
 import { getMetadata } from "../services/posts.services.js";
 
 export async function publishPostForTimeline(req, res) {
+<<<<<<< HEAD
   const { url, description } = req.body;
   const createdby = res.locals.userId;
   const createdat = new Date();
@@ -15,6 +16,20 @@ export async function publishPostForTimeline(req, res) {
     console.log(err);
     res.status(500).send(err.message);
   }
+=======
+    const { url, description } = req.body;
+    const createdBy = res.locals.userId;
+    const createdAt = new Date();
+
+    try {
+        const post = await createPostDB(createdBy, createdAt, url, description); 
+        
+        res.status(200).send(post.rows[0]);
+    } catch (err) {
+        console.log(err)
+        res.status(500).send(err.message);
+    }
+>>>>>>> origin/post
 }
 
 export async function getPostsForTimeline(req, res) {
