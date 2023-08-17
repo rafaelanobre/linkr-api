@@ -1,15 +1,45 @@
-
 import { db } from "../database/database.connection.js";
 import { createPostDB } from "../repositories/post.repository.js";
 import { getMetadata } from "../services/posts.services.js";
 
 export async function publishPostForTimeline(req, res) {
     const { url, description } = req.body;
-    const createdby = res.locals.userId;
-    const createdat = new Date();
+    const createdBy = res.locals.userId;
+    const createdAt = new Date();
+
+    const hashtagsArray = description.match(/#(\w+)/g) || [];
+    const hashtags = hashtagsArray.map(hashtag => hashtag.replace('#', ''));
+    const descriptionWithoutHashtags = description.replace(/#(\w+)/g, '').trim();
 
     try {
-        const post = await createPostDB(createdby, createdat, url, description); 
+
+        const post = await createPostDB(createdBy, createdAt, url, descriptionWithoutHashtags);
+
+        if (hashtags.length > 0) {
+            await Promise.all(hashtags.map(async (tag) => {
+                const existingTag = await db.query(`
+                    SELECT * FROM hashtags WHERE hashtag = $1;
+                `, [tag]);
+            
+                if (existingTag.rowCount > 0) {
+                    await db.query(`
+                    UPDATE hashtags SET total = total + 1 WHERE id = $1;
+                    `, [existingTag[0].id]);
+                } else {
+                    await db.query(`
+                    INSERT INTO hashtags (hashtag, total) VALUES ($1, 1);
+                    `, [tag]);
+                }
+
+                const { rows: [newTag] } = await db.query(`
+                    SELECT * FROM hashtags WHERE hashtag = $1;
+                `, [tag]);
+                
+                await db.query(`
+                    INSERT INTO "postsHashtags" ("postId", "hashtagId") VALUES ($1, $2);
+                `, [post.rows[0].id, newTag.id]);
+            }));
+        }
         
         res.status(200).send(post.rows[0]);
     } catch (err) {
@@ -18,15 +48,16 @@ export async function publishPostForTimeline(req, res) {
     }
 }
 
-export async function getPostsForTimeline(req, res) {
-    try {
+export async function getPostsForTimeline(req,res){
+    try{
         const { rows: posts } = await db.query(`
-            SELECT 
+        SELECT 
             p.id AS "postId",
             p.url,
             p.description,
             u.name AS "userName",
             u.photo AS "userPhoto",
+            ARRAY_AGG(users.name) AS "usersLikedNames",
             COALESCE(
                 json_agg(
                     json_build_object(
@@ -36,20 +67,24 @@ export async function getPostsForTimeline(req, res) {
                 ) FILTER (WHERE h.id IS NOT NULL),
                 '[]'
             ) AS hashtags
-            FROM 
+        FROM 
             posts p
-            LEFT JOIN 
+        LEFT JOIN 
             users u ON p."createdBy" = u.id
-            LEFT JOIN
+        LEFT JOIN 
+            likes l ON l."postId" = p.id
+        LEFT JOIN 
+            users ON l.userliked = users.id
+        LEFT JOIN
             "postsHashtags" ph ON p.id = ph."postId"
-            LEFT JOIN
+        LEFT JOIN
             hashtags h ON ph."hashtagId" = h.id
-            GROUP BY
+        GROUP BY
             p.id, u.id
-            ORDER BY 
+        ORDER BY 
             p."createdAt" DESC
-            LIMIT 20;
-        `);
+        LIMIT 20;
+    `);
 
         if (posts.length === 0) return res.status(204).send({ message: 'There are no posts yet' });
 
