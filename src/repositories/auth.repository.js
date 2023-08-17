@@ -5,12 +5,12 @@ export function createToken(user) {
         userId: user.id,
     };
 
-    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    return jwt.sign(payload, process.env.JWT_SECRET  || "RAJuIUEUG8O7uPUNc0XKfjUjg8kSF3HkLwn", { expiresIn: '1h' });
 }
 
 export function verifyToken(token) {
     try {
-        return jwt.verify(token, process.env.JWT_SECRET);
+        return jwt.verify(token, process.env.JWT_SECRET || "RAJuIUEUG8O7uPUNc0XKfjUjg8kSF3HkLwn");
     } catch (err) {
         return null;
     }
