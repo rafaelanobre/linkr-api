@@ -43,3 +43,33 @@ export async function deleteLike(body) {
     [userliked, postId]
   );
 }
+
+
+export function getPostByUserIdDB(id) {
+  return db.query(
+      `SELECT 
+      p.id AS "postId",
+      p.url,
+      p.description,
+      u.name AS "userName",
+      u.photo AS "userPhoto",
+      ARRAY_AGG(users.name) AS "usersLikedNames"
+  FROM 
+      posts p
+  LEFT JOIN 
+      users u ON p."createdBy" = u.id
+  LEFT JOIN 
+      likes l ON l."postId" = p.id
+  LEFT JOIN 
+      users ON l.userliked = users.id
+  WHERE p."createdBy" = $1 
+  GROUP BY 
+      p.id, u.id
+  ORDER BY 
+      p."createdAt" DESC
+  LIMIT 20
+       
+      `,
+      [id]
+  )
+}
