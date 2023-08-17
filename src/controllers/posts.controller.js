@@ -4,7 +4,8 @@ import { createPostDB } from "../repositories/post.repository.js";
 
 export async function publishPostForTimeline(req, res) {
     const { url, description } = req.body;
-    const createdBy = res.locals.userId;
+    const createdBy = 1;
+    //res.locals.userId;
     const createdAt = new Date();
 
     try {
