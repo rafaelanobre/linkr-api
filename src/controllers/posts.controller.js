@@ -18,37 +18,54 @@ export async function publishPostForTimeline(req, res) {
     }
 }
 
-export async function getPostsForTimeline(req,res){
-    try{
+export async function getPostsForTimeline(req, res) {
+    try {
         const { rows: posts } = await db.query(`
-        SELECT 
+            SELECT 
             p.id AS "postId",
             p.url,
             p.description,
             u.name AS "userName",
-            u.photo AS "userPhoto"
-        FROM 
+            u.photo AS "userPhoto",
+            COALESCE(
+                json_agg(
+                    json_build_object(
+                        'hashtagId', h.id,
+                        'hashtag', h.hashtag
+                    )
+                ) FILTER (WHERE h.id IS NOT NULL),
+                '[]'
+            ) AS hashtags
+            FROM 
             posts p
-        LEFT JOIN 
+            LEFT JOIN 
             users u ON p."createdBy" = u.id
-        ORDER BY 
-            "createdAt" DESC
-        LIMIT 20;
+            LEFT JOIN
+            "postsHashtags" ph ON p.id = ph."postId"
+            LEFT JOIN
+            hashtags h ON ph."hashtagId" = h.id
+            GROUP BY
+            p.id, u.id
+            ORDER BY 
+            p."createdAt" DESC
+            LIMIT 20;
         `);
 
-        if (posts.rowCount === 0) return res.status(204).send({message:'There are no posts yet'});
+        if (posts.length === 0) return res.status(204).send({ message: 'There are no posts yet' });
 
         const postsWithMetadata = await Promise.all(posts.map(async (post) => {
             const metadata = post.url ? await getMetadata(post.url) : {};
             return {
                 ...post,
-                metadata,
+                metadata
             };
         }));
 
         res.status(200).send(postsWithMetadata);
-    }catch(error){
-        const errorMessage = error.message ? error.message : "Ocorreu um erro interno no servidor.";
+    } catch (error) {
+        const errorMessage = error.message ? error.message : 'An internal server error occurred.';
         res.status(500).send(errorMessage);
     }
 }
+
+
