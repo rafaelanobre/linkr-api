@@ -1,5 +1,6 @@
 import { db } from "../database/database.connection.js";
 import { createPostDB } from "../repositories/post.repository.js";
+import { getMetadata } from "../services/posts.services.js";
 
 export async function publishPostForTimeline(req, res) {
   const { url, description } = req.body;
@@ -41,13 +42,19 @@ ORDER BY
 LIMIT 20;
         `);
 
-    if (posts.rowCount === 0)
-      return res.status(204).send({ message: "There are no posts yet" });
-    res.status(200).send(posts);
-  } catch (error) {
-    const errorMessage = error.message
-      ? error.message
-      : "Ocorreu um erro interno no servidor.";
-    res.status(500).send(errorMessage);
-  }
+        if (posts.rowCount === 0) return res.status(204).send({message:'There are no posts yet'});
+
+        const postsWithMetadata = await Promise.all(posts.map(async (post) => {
+            const metadata = post.url ? await getMetadata(post.url) : {};
+            return {
+                ...post,
+                metadata,
+            };
+        }));
+
+        res.status(200).send(postsWithMetadata);
+    }catch(error){
+        const errorMessage = error.message ? error.message : "Ocorreu um erro interno no servidor.";
+        res.status(500).send(errorMessage);
+    }
 }
