@@ -9,7 +9,7 @@ import { validateAuth } from "../middlewares/validateAuth.js";
 const postsRouter = Router();
 
 postsRouter.get("/posts", getPostsForTimeline);
-postsRouter.post("/posts", validateSchema(postSchema), publishPostForTimeline);
+postsRouter.post("/posts", validateAuth, validateSchema(postSchema), publishPostForTimeline);
 postsRouter.delete("/posts", );
 postsRouter.put("/posts", );
 
