@@ -3,20 +3,6 @@ import { createPostDB } from "../repositories/post.repository.js";
 import { getMetadata } from "../services/posts.services.js";
 
 export async function publishPostForTimeline(req, res) {
-<<<<<<< HEAD
-  const { url, description } = req.body;
-  const createdby = res.locals.userId;
-  const createdat = new Date();
-
-  try {
-    const post = await createPostDB(createdby, createdat, url, description);
-
-    res.status(200).send(post.rows[0]);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send(err.message);
-  }
-=======
     const { url, description } = req.body;
     const createdBy = res.locals.userId;
     const createdAt = new Date();
@@ -29,7 +15,6 @@ export async function publishPostForTimeline(req, res) {
         console.log(err)
         res.status(500).send(err.message);
     }
->>>>>>> origin/post
 }
 
 export async function getPostsForTimeline(req, res) {
@@ -42,19 +27,19 @@ export async function getPostsForTimeline(req, res) {
     u.name AS "userName",
     u.photo AS "userPhoto",
     ARRAY_AGG(users.name) AS "usersLikedNames"
-FROM 
+    FROM 
     posts p
-LEFT JOIN 
+    LEFT JOIN 
     users u ON p."createdBy" = u.id
-LEFT JOIN 
+    LEFT JOIN 
     likes l ON l."postId" = p.id
-LEFT JOIN 
+    LEFT JOIN 
     users ON l.userliked = users.id
-GROUP BY 
+    GROUP BY 
     p.id, u.id
-ORDER BY 
+    ORDER BY 
     p."createdAt" DESC
-LIMIT 20;
+    LIMIT 20;
         `);
 
         if (posts.rowCount === 0) return res.status(204).send({message:'There are no posts yet'});

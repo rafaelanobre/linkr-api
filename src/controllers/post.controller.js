@@ -15,7 +15,7 @@ export async function getlike(req, res){
     if (isNaN(id)) return res.sendStatus(400);
 
     try {
-        const likes = await usersLiked(id)
+        const likes = await usersLiked()
         res.status(201).send(likes.rows)
     } catch (err) {
         res.status(500).send(err.message);
@@ -25,8 +25,8 @@ export async function getlike(req, res){
 export async function dellike(req, res){
     
     try {
-        const del = deleteLike(req.body)
-        res.sendStatus(201)
+        const del = deleteLike(req.body, res)
+        res.status(201).send('deslike realizado com sucesso')
     } catch (err) {
         res.status(500).send(err.message);
     }
