@@ -40,20 +40,17 @@ export async function usersLiked() {
   return Liked;
 }
 
-export async function deleteLike(body, res) {
-  const { userliked, postId } = body;
+export async function deleteLike(userliked, postId) {
   try {
-    const dellike = await db.query(
+    const result = await db.query(
       `DELETE FROM likes WHERE userliked = $1 AND "postId" = $2`,
       [userliked, postId]
     );
-    if(dellike.rowCount === 0)
-    return res.status(400).send('Curtida nao existe')
-  } catch (err) {
-    
+
+    return result.rowCount; // Retorna o número de linhas afetadas pela exclusão
+  } catch (error) {
+    throw new Error(error.message);
   }
-  
-  
 }
 
 
