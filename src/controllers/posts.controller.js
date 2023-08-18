@@ -18,14 +18,14 @@ export async function publishPostForTimeline(req, res) {
 
         if (hashtags.length > 0) {
             await Promise.all(hashtags.map(async (tag) => {
-                const existingTag = await db.query(`
+                const { rows: [existingTag] } = await db.query(`
                     SELECT * FROM hashtags WHERE hashtag = $1;
                 `, [tag]);
-            
-                if (existingTag.rowCount > 0) {
+                console.log(existingTag)
+                if (existingTag !== undefined) {
                     await db.query(`
                     UPDATE hashtags SET total = total + 1 WHERE id = $1;
-                    `, [existingTag[0].id]);
+                    `, [existingTag.id]);
                 } else {
                     await db.query(`
                     INSERT INTO hashtags (hashtag, total) VALUES ($1, 1);
@@ -87,7 +87,7 @@ export async function getPostsForTimeline(req,res){
         LIMIT 20;
     `);
 
-        if (posts.length === 0) return res.status(204).send({ message: 'There are no posts yet' });
+        if (posts.rowCount === 0) return res.status(204).send({ message: 'There are no posts yet' });
 
         const postsWithMetadata = await Promise.all(posts.map(async (post) => {
             const metadata = post.url ? await getMetadata(post.url) : {};
@@ -118,7 +118,7 @@ export async function getPostUserById(req, res) {
             const metadata = post.url ? await getMetadata(post.url) : {};
             return {
                 ...post,
-                metadata,
+                metadata
             };
         }));
 
