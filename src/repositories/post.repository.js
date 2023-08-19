@@ -17,7 +17,7 @@ export async function insertLike(body, res) {
       [userliked, postId]
     );
     if (checkLike.rows.length !== 0)
-      return res.status(400).send("usuario ja curtil");
+      return res.status(400).send(checkLike.rows);
 
     const insertLike = await db.query(
       `INSERT INTO likes ("createdAt", userliked, "postId") VALUES (CURRENT_TIMESTAMP, $1, $2)`,
@@ -27,21 +27,30 @@ export async function insertLike(body, res) {
   } catch (err) {}
 }
 
-export async function usersLiked(id) {
-  console.log(id);
-  const Liked = await db.query(
-    `SELECT likes.userliked FROM likes WHERE "postId" = $1`,
-    [id]
-  );
+// export async function usersLiked(id) {
+//   const Liked = await db.query(
+//     `SELECT likes.userliked FROM likes WHERE "postId" = $1`,
+//     [id]
+//   );
+//   return Liked;
+// }
+
+export async function usersLiked() {
+  const Liked = await db.query(`SELECT * FROM likes`);
   return Liked;
 }
 
-export async function deleteLike(body) {
-  const { userliked, postId } = body;
-  const dellike = await db.query(
-    `DELETE FROM likes WHERE userliked = $1 AND "postId" = $2`,
-    [userliked, postId]
-  );
+export async function deleteLike(userliked, postId) {
+  try {
+    const result = await db.query(
+      `DELETE FROM likes WHERE userliked = $1 AND "postId" = $2`,
+      [userliked, postId]
+    );
+
+    return result.rowCount; // Retorna o número de linhas afetadas pela exclusão
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
 
 

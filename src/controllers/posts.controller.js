@@ -4,6 +4,7 @@ import { createPostDB, getPostByUserIdDB } from "../repositories/post.repository
 import { getMetadata } from "../services/posts.services.js";
 
 export async function publishPostForTimeline(req, res) {
+
     const { url, description } = req.body;
     const createdBy = res.locals.userId;
     const createdAt = new Date();
