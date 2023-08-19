@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPostUserById, publishPostForTimeline } from "../controllers/posts.controller.js";
+import { DeletePost, getPostUserById, publishPostForTimeline } from "../controllers/posts.controller.js";
 import { getPostsForTimeline } from "../controllers/posts.controller.js";
 import validateSchema from "../middlewares/validateSchema.js";
 import postSchema from "../schemas/post.schema.js";
@@ -13,5 +13,6 @@ postsRouter.post("/posts", validateAuth, validateSchema(postSchema), publishPost
 postsRouter.delete("/posts", );
 postsRouter.put("/posts", );
 postsRouter.get("/user/:id", getPostUserById);
+postsRouter.delete("/delete-post/:postId",validateAuth, DeletePost)
 
 export default postsRouter;

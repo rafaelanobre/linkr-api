@@ -1,3 +1,4 @@
+import { AsyncResource } from "async_hooks";
 import { db } from "../database/database.connection.js";
 import { createPostDB, getPostByUserIdDB } from "../repositories/post.repository.js";
 import { getMetadata } from "../services/posts.services.js";
@@ -34,13 +35,13 @@ export async function publishPostForTimeline(req, res) {
                 const { rows: [newTag] } = await db.query(`
                     SELECT * FROM hashtags WHERE hashtag = $1;
                 `, [tag]);
-                
+
                 await db.query(`
                     INSERT INTO "postsHashtags" ("postId", "hashtagId") VALUES ($1, $2);
                 `, [post.rows[0].id, newTag.id]);
             }));
         }
-        
+
         res.status(200).send(post.rows[0]);
     } catch (err) {
         console.log(err)
@@ -48,8 +49,8 @@ export async function publishPostForTimeline(req, res) {
     }
 }
 
-export async function getPostsForTimeline(req,res){
-    try{
+export async function getPostsForTimeline(req, res) {
+    try {
         const { rows: posts } = await db.query(`
         SELECT 
             p.id AS "postId",
@@ -105,13 +106,13 @@ export async function getPostsForTimeline(req,res){
 
 
 export async function getPostUserById(req, res) {
-   
+
     const id = Number(req.params.id)
- 
-    
-      try {
-        const { rows: posts } = await getPostByUserIdDB(id); 
-        if (posts.rowCount === 0) return res.status(204).send({message:'There are no posts yet'});
+
+
+    try {
+        const { rows: posts } = await getPostByUserIdDB(id);
+        if (posts.rowCount === 0) return res.status(204).send({ message: 'There are no posts yet' });
 
         const postsWithMetadata = await Promise.all(posts.map(async (post) => {
             const metadata = post.url ? await getMetadata(post.url) : {};
@@ -122,8 +123,25 @@ export async function getPostUserById(req, res) {
         }));
 
         res.status(200).send(postsWithMetadata);
-    }catch(error){
+    } catch (error) {
         const errorMessage = error.message ? error.message : "Ocorreu um erro interno no servidor.";
         res.status(500).send(errorMessage);
     }
-  }
+}
+
+export async function DeletePost(req, res) {
+    const createdBy = res.locals.userId;
+    console.log(createdBy)
+    const postId = Number(req.params.postId)
+    try {
+        const del = await db.query(
+            `DELETE FROM posts WHERE "createdBy" = $1 AND "id" = $2`,
+            [createdBy, postId]
+        )
+        res.sendStatus(200);
+    } catch (error) {
+        const errorMessage = error.message ? error.message : "Ocorreu um erro interno no servidor.";
+        res.status(500).send(errorMessage);
+    }
+
+}

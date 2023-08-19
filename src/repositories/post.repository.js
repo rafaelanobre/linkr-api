@@ -53,7 +53,16 @@ export function getPostByUserIdDB(id) {
       p.description,
       u.name AS "userName",
       u.photo AS "userPhoto",
-      ARRAY_AGG(users.name) AS "usersLikedNames"
+      ARRAY_AGG(users.name) AS "usersLikedNames",
+      COALESCE(
+          json_agg(
+              json_build_object(
+                  'hashtagId', h.id,
+                  'hashtag', h.hashtag
+              )
+          ) FILTER (WHERE h.id IS NOT NULL),
+          '[]'
+      ) AS hashtags
   FROM 
       posts p
   LEFT JOIN 
@@ -62,6 +71,10 @@ export function getPostByUserIdDB(id) {
       likes l ON l."postId" = p.id
   LEFT JOIN 
       users ON l.userliked = users.id
+  LEFT JOIN
+      "postsHashtags" ph ON p.id = ph."postId"
+  LEFT JOIN
+      hashtags h ON ph."hashtagId" = h.id
   WHERE p."createdBy" = $1 
   GROUP BY 
       p.id, u.id
