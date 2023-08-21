@@ -60,6 +60,7 @@ export async function getPostsForTimeline(req, res) {
             p.description,
             u.name AS "userName",
             u.photo AS "userPhoto",
+            u.id AS "userId",
             ARRAY_AGG(users.name) AS "usersLikedNames",
             COALESCE(
                 json_agg(
