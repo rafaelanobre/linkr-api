@@ -1,6 +1,10 @@
 import urlMetadata from 'url-metadata';
 
 export async function getMetadata(url) {
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'http://' + url;
+    }
+
     try {
         const metadata = await urlMetadata(url, { ensureSecureImageRequest: true }) || {};
         return metadata;
