@@ -83,7 +83,6 @@ export async function getPostsForTimeline(req,res){
         GROUP BY
             p.id, u.id
         ORDER BY 
-            p."createdAt" DESC
         LIMIT 20;
     `);
 
