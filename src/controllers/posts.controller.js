@@ -4,8 +4,7 @@ import { createPostDB } from "../repositories/post.repository.js";
 
 export async function publishPostForTimeline(req, res) {
     const { url, description } = req.body;
-    const createdBy = 1;
-    //res.locals.userId;
+    const createdBy = res.locals.userId;
     const createdAt = new Date();
 
     try {
@@ -26,14 +25,23 @@ export async function getPostsForTimeline(req,res){
             p.url,
             p.description,
             u.name AS "userName",
-            u.photo AS "userPhoto"
+            u.photo AS "userPhoto",
+            u.id AS "userId", -- Aqui está a nova linha que inclui o userId
+            ARRAY_AGG(users.name) AS "usersLikedNames"
         FROM 
             posts p
         LEFT JOIN 
             users u ON p."createdBy" = u.id
+        LEFT JOIN 
+            likes l ON l."postId" = p.id
+        LEFT JOIN 
+            users ON l.userliked = users.id
+        GROUP BY 
+            p.id, u.id
         ORDER BY 
-            "createdAt" DESC
+            p."createdAt" DESC
         LIMIT 20;
+
         `);
 
         if (posts.rowCount === 0) return res.status(204).send({message:'There are no posts yet'});
