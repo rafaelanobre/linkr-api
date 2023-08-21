@@ -358,7 +358,7 @@ ALTER TABLE ONLY public.likes
 --
 
 ALTER TABLE ONLY public.likes
-    ADD CONSTRAINT likes_fk1 FOREIGN KEY ("postId") REFERENCES public.posts(id);
+    ADD CONSTRAINT likes_fk1 FOREIGN KEY ("postId") REFERENCES public.posts(id) ON DELETE CASCADE;
 
 
 --
