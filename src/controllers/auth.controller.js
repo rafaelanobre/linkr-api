@@ -51,7 +51,6 @@ export async function getUsers(req, res) {
         const users = await db.query(`SELECT id, name FROM users WHERE  "name" ILIKE $1 LIMIT 10;`, [`%${name}%`]);
         if (users.rows.length === 0) return res.status(404).send("Nenhum usuario encontrado");
 
-        
         res.status(200).send(users.rows);
     }
     catch (err) {
