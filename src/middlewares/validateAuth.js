@@ -1,4 +1,4 @@
-import { verifyToken } from "../repositories/auth.repository.js";
+import { verifyToken } from "../services/auth.services.js";
 
 export function validateAuth(req, res, next) {
     const { authorization } = req.headers;
