@@ -3,6 +3,10 @@ import { createNewHashtag, deleteLinkPostAndHashtag, downHashtagTotal, linkPostA
 
 
 export async function getMetadata(url) {
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'http://' + url;
+    }
+
     try {
         const metadata = await urlMetadata(url, { ensureSecureImageRequest: true }) || {};
         const title = metadata['og:title'];

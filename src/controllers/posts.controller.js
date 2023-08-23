@@ -47,9 +47,10 @@ export async function getPostUserById(req, res) {
 export async function DeletePost(req, res) {
     try {
         const del = await deletePostDB(res.locals.userId, Number(req.params.postId));
+        if(del.rowCount === 0) return res.status(401).send("you do not have authorization to delete this post")
         res.sendStatus(200);
     } catch (error) {
-        const errorMessage = error.message ? error.message : "Ocorreu um erro interno no servidor.";
+        const errorMessage = error.message ? error.message : "it was not possible to delete.";
         res.status(500).send(errorMessage);
     }
 
