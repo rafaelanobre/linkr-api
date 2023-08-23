@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { dellike, getlike, postlike } from "../controllers/post.controller.js"
+import { dellike, getlike, postlike } from "../controllers/likes.controller.js"
 
 const likeRouter = Router()
 
