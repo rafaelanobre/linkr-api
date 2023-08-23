@@ -4,7 +4,7 @@ import { extractAndFormatHashtags, getDescriptionWithoutHashtags, insertHashtags
 export async function publishPostForTimeline(req, res) {
     const { url, description } = req.body;
     const hashtags = extractAndFormatHashtags(description);
-    const descriptionWithoutHashtags = getDescriptionWithoutHashtags(description);
+    const descriptionWithoutHashtags = await getDescriptionWithoutHashtags(description);
     try {
         const post = await createPostDB(res.locals.userId, new Date(), url, descriptionWithoutHashtags);
         if (hashtags.length > 0) {
@@ -47,7 +47,7 @@ export async function getPostUserById(req, res) {
 export async function DeletePost(req, res) {
     try {
         const del = await deletePostDB(res.locals.userId, Number(req.params.postId));
-        if(del.rowCount === 0) return res.status(401).send("you do not have authorization to delete this post")
+        if (del.rowCount === 0) return res.status(401).send("you do not have authorization to delete this post")
         res.sendStatus(200);
     } catch (error) {
         const errorMessage = error.message ? error.message : "it was not possible to delete.";
@@ -56,15 +56,15 @@ export async function DeletePost(req, res) {
 
 }
 
-export async function editPost(req,res){
-    const {id} = req.params;
+export async function editPost(req, res) {
+    const { id } = req.params;
     const { description } = req.body;
     const hashtags = extractAndFormatHashtags(description);
     const descriptionWithoutHashtags = getDescriptionWithoutHashtags(description);
-    try{
+    try {
         const { rows: [post] } = await searchPostById(id);
-        if(!post) return res.status(404).send({ message: 'Não foi possível encontrar esse post.' });
-        if(post.createdBy !== res.locals.userId) return res.status(403).send({ message: 'Você não pode editar esse registro.' });
+        if (!post) return res.status(404).send({ message: 'Não foi possível encontrar esse post.' });
+        if (post.createdBy !== res.locals.userId) return res.status(403).send({ message: 'Você não pode editar esse registro.' });
         const { rows: [newPost] } = await updatedPost(descriptionWithoutHashtags, id);
         await removeHashtagsFromPost(hashtags, newPost);
 
