@@ -6,7 +6,7 @@ export async function publishPostForTimeline(req, res) {
     const hashtags = extractAndFormatHashtags(description);
     const descriptionWithoutHashtags = await getDescriptionWithoutHashtags(description);
     try {
-        const post = await create(res.locals.userId, new Date(), url, descriptionWithoutHashtags);
+        const post = await createPostDB(res.locals.userId, new Date(), url, descriptionWithoutHashtags);
         if (hashtags.length > 0) {
             await insertHashtagsIntoNewPost(hashtags, post)
         }
