@@ -34,24 +34,14 @@ export async function signin(req, res) {
     if (!correctPassword)
       return res.status(401).send("Usuário e/ou senha incorretos!");
 
-    const dados = { userId: user.rows[0].id };
-    const chaveSecreta =
-      process.env.JWT_SECRET || "RAJuIUEUG8O7uPUNc0XKfjUjg8kSF3HkLwn";
-
-    const token = jwt.sign(dados, chaveSecreta, { expiresIn: "12h" });
-
-    res
-      .status(200)
-      .send({
-        token,
-        id: user.rows[0].id,
-        name: user.rows[0].name,
-        photo: user.rows[0].photo,
-      });
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(401);
-  }
+        const dados = { userId: user.rows[0].id };
+        const token = createToken(dados);
+        res.status(200).send( { token, id: user.rows[0].id, name: user.rows[0].name, photo: user.rows[0].photo});
+    }
+    catch (error) {
+        console.log(error);
+        res.sendStatus(401);
+    }
 }
 
 export async function getUsers(req, res) {

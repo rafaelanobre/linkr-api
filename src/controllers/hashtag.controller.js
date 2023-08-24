@@ -1,11 +1,9 @@
-import { db } from "../database/database.connection.js";
-import { getMetadata } from "../services/posts.services.js";
+import { getPostsByHashtags, getTrendingHashtags } from "../repositories/hashtag.repository.js";
+import { insertMetadataIntoPosts } from "../services/posts.services.js";
 
 export async function trendingHashtags(req,res){
     try{
-        const { rows: trending} = await db.query(`
-            SELECT * FROM hashtags ORDER BY total DESC LIMIT 10
-        `)
+        const { rows: trending} = await getTrendingHashtags();
         res.status(200).send(trending);
     } catch(error){
         const errorMessage = error.message ? error.message : 'An internal server error occurred.';
@@ -57,11 +55,7 @@ export async function postsByHashtag(req,res){
 
         if (posts.rowCount === 0) return res.status(204).send({ message: 'There are no posts yet' });
 
-        const postsWithMetadata = await Promise.all(posts.map(async (post) => {
-            const metadata = post.url ? await getMetadata(post.url) : {};
-            return {...post,metadata};
-        }));
-
+        const postsWithMetadata = await insertMetadataIntoPosts(posts);
         res.status(200).send(postsWithMetadata);
     }catch(error){
         const errorMessage = error.message ? error.message : 'An internal server error occurred.';

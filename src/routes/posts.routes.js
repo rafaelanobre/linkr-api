@@ -1,10 +1,8 @@
 import { Router } from "express";
-import { DeletePost, editPost, getPostUserById, publishPostForTimeline } from "../controllers/posts.controller.js";
-import { getPostsForTimeline } from "../controllers/posts.controller.js";
+import { DeletePost, editPost, getPostUserById, getPostsForTimeline, publishPostForTimeline } from "../controllers/posts.controller.js";
 import validateSchema from "../middlewares/validateSchema.js";
-import postSchema from "../schemas/post.schema.js";
 import { validateAuth } from "../middlewares/validateAuth.js";
-
+import postSchema from "../schemas/post.schema.js";
 
 const postsRouter = Router();
 

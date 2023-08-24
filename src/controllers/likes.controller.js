@@ -1,5 +1,4 @@
-import { db } from "../database/database.connection.js";
-import { deleteLike, insertLike, usersLiked,} from "../repositories/post.repository.js";
+import { deleteLike, insertLike, usersLiked,} from "../repositories/likes.repository.js";
 
 export async function postlike(req, res) {
   try {
