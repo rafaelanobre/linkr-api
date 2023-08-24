@@ -18,8 +18,10 @@ export async function publishPostForTimeline(req, res) {
 }
 
 export async function getPostsForTimeline(req, res) {
+    const { offset } = req.query;
     try {
-        const { rows: posts } = await getTimelinePostsDB();
+        const limit = 10;
+        const { rows: posts } = await getTimelinePostsDB(limit, offset);
         if (posts.rowCount === 0) return res.status(204).send({ message: 'There are no posts yet' });
         const postsWithMetadata = await insertMetadataIntoPosts(posts);
 
