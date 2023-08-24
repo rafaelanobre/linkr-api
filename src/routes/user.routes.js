@@ -3,7 +3,7 @@ import { getUserById } from "../controllers/user.controller.js";
 
 const userRouter = Router();
 
-userRouter.get("/user/:userId", getUserById);
+userRouter.get("/userPosts/:userId", getUserById);
 
 export default userRouter;
 

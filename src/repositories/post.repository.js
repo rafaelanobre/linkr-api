@@ -60,6 +60,7 @@ export function getPostByUserIdDB(id) {
       p.id AS "postId",
       p.url,
       p.description,
+      u.id AS "userId",
       u.name AS "userName",
       u.photo AS "userPhoto",
       ARRAY_AGG(users.name) AS "usersLikedNames",
