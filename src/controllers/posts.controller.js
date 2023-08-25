@@ -21,7 +21,6 @@ export async function getPostsForTimeline(req, res) {
     const { offset } = req.query;
     try {
         const limit = 10;
-        console.log(offset+"of+tmlim"+limit)
         const { rows: posts } = await getTimelinePostsDB(limit, offset);
         if (posts.rowCount === 0) return res.status(204).send({ message: 'There are no posts yet' });
         const postsWithMetadata = await insertMetadataIntoPosts(posts);
@@ -37,7 +36,6 @@ export async function getPostUserById(req, res) {
     const { offset } = req.query;
     try {
         const limit = 10;
-        console.log(offset+"of+bylim"+limit)
         const { rows: posts } = await getPostByUserIdDB(Number(req.params.id), limit, offset);
         if (posts.rowCount === 0) return res.status(204).send({ message: 'There are no posts yet' });
         const postsWithMetadata = await insertMetadataIntoPosts(posts);
