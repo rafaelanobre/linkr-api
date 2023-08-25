@@ -70,6 +70,9 @@ export async function getTimelinePostsDB(limit, offset){
         u.name AS "userName",
         u.photo AS "userPhoto",
         u.id AS "userId",
+        uo.id AS "userOrigemId",
+        uo.name AS "userOrigemName",
+        uo.photo AS "userOrigemPhoto",
         (SELECT COUNT(*) FROM comments c WHERE c."postId" = p.id) AS "commentCount",
         (SELECT COUNT(*) FROM posts pt WHERE pt."origemPostId" = p.id) AS "repostCountOrigem",
         (SELECT COUNT(*) FROM posts pts WHERE p."origemPostId" = pts."origemPostId") AS "repostCountRepost",
@@ -95,8 +98,10 @@ export async function getTimelinePostsDB(limit, offset){
         "postsHashtags" ph ON p.id = ph."postId"
     LEFT JOIN
         hashtags h ON ph."hashtagId" = h.id
+    LEFT JOIN 
+        users uo ON p."origemCreatedBy" = uo.id
     GROUP BY
-        p.id, u.id
+        p.id, u.id, uo.id
     ORDER BY 
         p."createdAt" DESC
     LIMIT $1
