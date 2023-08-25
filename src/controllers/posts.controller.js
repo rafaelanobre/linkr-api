@@ -24,7 +24,6 @@ export async function getPostsForTimeline(req, res) {
         const { rows: posts } = await getTimelinePostsDB(limit, offset);
         if (posts.rowCount === 0) return res.status(204).send({ message: 'There are no posts yet' });
         const postsWithMetadata = await insertMetadataIntoPosts(posts);
-
         res.status(200).send(postsWithMetadata);
     } catch (error) {
         const errorMessage = error.message ? error.message : 'An internal server error occurred.';
@@ -38,7 +37,6 @@ export async function getPostUserById(req, res) {
         const { rows: posts } = await getPostByUserIdDB(Number(req.params.id));
         if (posts.rowCount === 0) return res.status(204).send({ message: 'There are no posts yet' });
         const postsWithMetadata = await insertMetadataIntoPosts(posts);
-
         res.status(200).send(postsWithMetadata);
     } catch (error) {
         const errorMessage = error.message ? error.message : "Ocorreu um erro interno no servidor.";
@@ -55,7 +53,6 @@ export async function DeletePost(req, res) {
         const errorMessage = error.message ? error.message : "it was not possible to delete.";
         res.status(500).send(errorMessage);
     }
-
 }
 
 export async function editPost(req, res) {

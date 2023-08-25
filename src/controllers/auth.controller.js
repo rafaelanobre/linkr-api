@@ -1,20 +1,17 @@
 import { db } from "../database/database.connection.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import { createToken } from "../services/auth.services.js";
 import { checkEmail, newUser } from "../repositories/auth.repository.js";
 
 export async function signup(req, res) {
   const { name, email, photo } = req.body;
-  console.log("req ok");
   try {
     const user = await checkEmail(email);
-    if (user.rows.length > 0)
-      return res.status(409).send("E-mail de usuário ja cadastrado!");
+    if (user.rows.length > 0) return res.status(409).send("E-mail de usuário ja cadastrado!");
 
     const passwordHashed = bcrypt.hashSync(req.body.password, 10);
     delete req.body.password;
     await newUser(name, email, passwordHashed, photo);
-
     res.sendStatus(201);
   } catch (error) {
     console.log(error);
@@ -27,8 +24,7 @@ export async function signin(req, res) {
 
   try {
     const user = await checkEmail(email);
-    if (user.rows.length === 0)
-      return res.status(401).send("Usuário e/ou senha incorretos!");
+    if (user.rows.length === 0) return res.status(401).send("Usuário e/ou senha incorretos!");
 
     const correctPassword = bcrypt.compareSync(password, user.rows[0].password);
     if (!correctPassword)
@@ -46,7 +42,6 @@ export async function signin(req, res) {
 
 export async function getUsers(req, res) {
   const { name, id } = req.params;
-
   try {
     const users = await db.query(
       `
@@ -58,8 +53,7 @@ export async function getUsers(req, res) {
       ORDER BY isfollowing DESC, u.name;`,
       [id, `%${name}%`]
     );
-    if (users.rows.length === 0)
-      return res.status(404).send("Nenhum usuario encontrado");
+    if (users.rows.length === 0) return res.status(404).send("Nenhum usuario encontrado");
 
     res.status(200).send(users.rows);
   } catch (err) {
@@ -70,14 +64,9 @@ export async function getUsers(req, res) {
 
 export async function getUsersProfile(req, res) {
   const { id } = req.params;
-
   try {
-    const promise = await db.query(
-      `SELECT id, name, photo FROM users WHERE  id = $1;`,
-      [id]
-    );
-    if (promise.rows.length === 0)
-      return res.status(404).send("Nenhum usuario encontrado");
+    const promise = await db.query(`SELECT id, name, photo FROM users WHERE  id = $1;`, [id]);
+    if (promise.rows.length === 0) return res.status(404).send("Nenhum usuario encontrado");
 
     const user = promise.rows[0];
     res.status(200).send(user);
