@@ -10,7 +10,7 @@ export async function createPostDB(createdby, createdat, url, description) {
 }
 
 
-export async function getPostByUserIdDB(id) {
+export async function getPostByUserIdDB(id, limit, offset) {
   return db.query(
       `SELECT 
       p.id AS "postId",
@@ -46,10 +46,10 @@ export async function getPostByUserIdDB(id) {
           p.id, u.id
       ORDER BY 
           p."createdAt" DESC
-      LIMIT 20
-          
+          LIMIT $2
+          OFFSET $3;          
       `,
-      [id]
+      [id, limit, offset]
   )
 }
 
