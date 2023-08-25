@@ -16,6 +16,7 @@ export async function getPostByUserIdDB(id) {
       p.id AS "postId",
       p.url,
       p.description,
+      u.id AS "userId",
       u.name AS "userName",
       u.photo AS "userPhoto",
       ARRAY_AGG(users.name) AS "usersLikedNames",
@@ -59,7 +60,7 @@ export async function deletePostDB(createdBy, postId){
   )
 }
 
-export async function getTimelinePostsDB(){
+export async function getTimelinePostsDB(limit, offset){
   return db.query(`
     SELECT 
         p.id AS "postId",
@@ -95,8 +96,9 @@ export async function getTimelinePostsDB(){
         p.id, u.id
     ORDER BY 
         p."createdAt" DESC
-    LIMIT 20;
-  `);
+    LIMIT $1
+    OFFSET $2;
+  `,[limit, offset]);
 }
 
 export async function updatePost(description, id){
