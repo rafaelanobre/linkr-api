@@ -66,10 +66,13 @@ export async function getTimelinePostsDB(limit, offset){
         p.id AS "postId",
         p.url,
         p.description,
+        p.repost,
         u.name AS "userName",
         u.photo AS "userPhoto",
         u.id AS "userId",
         (SELECT COUNT(*) FROM comments c WHERE c."postId" = p.id) AS "commentCount",
+        (SELECT COUNT(*) FROM posts pt WHERE pt."origemPostId" = p.id) AS "repostCountOrigem",
+        (SELECT COUNT(*) FROM posts pts WHERE p."origemPostId" = pts."origemPostId") AS "repostCountRepost",
         ARRAY_AGG(users.name) AS "usersLikedNames",
         COALESCE(
             json_agg(
@@ -138,4 +141,14 @@ export async function searchPostByIdWithHashtags(id){
     FROM posts AS p
     WHERE p.id = $1;
   `, [id]);
+}
+
+
+export async function createrepostDB(createdby, createdat, url, description, postId, origemCreatedBy) {
+  return db.query(
+      `INSERT INTO posts ("createdBy", "createdAt", url, description, repost, "origemPostId", "origemCreatedBy") 
+          VALUES ($1, $2, $3, $4, $5, $6, $7) 
+          RETURNING *;`,
+      [createdby, createdat, url, description, true, postId, origemCreatedBy]
+  )
 }
