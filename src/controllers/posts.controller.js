@@ -22,7 +22,7 @@ export async function getPostsForTimeline(req, res) {
     const { offset } = req.query;
     try {
         const limit = 10;
-        const { rows: posts } = await getTimelinePostsDB(limit, offset);
+        const { rows: posts } = await getTimelinePostsDB(limit, offset, res.locals.userId);
         if (posts.rowCount === 0) return res.status(204).send({ message: 'There are no posts yet' });
         const postsWithMetadata = await insertMetadataIntoPosts(posts);
         res.status(200).send(postsWithMetadata);
