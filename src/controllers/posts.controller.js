@@ -1,4 +1,4 @@
-import { createPostDB, deletePostDB, getPostByUserIdDB, getTimelinePostsDB, searchPostById, searchPostByIdWithHashtags } from "../repositories/post.repository.js";
+import { createPostDB, deletePostDB, getPostByUserIdDB, getTimelinePostsDB, searchPostById, searchPostByIdWithHashtags, updatePost } from "../repositories/post.repository.js";
 import { extractAndFormatHashtags, getDescriptionWithoutHashtags, insertHashtagsIntoNewPost, insertMetadataIntoPosts, removeHashtagsFromPost } from "../services/posts.services.js";
 
 export async function publishPostForTimeline(req, res) {
@@ -6,7 +6,7 @@ export async function publishPostForTimeline(req, res) {
     const hashtags = extractAndFormatHashtags(description);
     const descriptionWithoutHashtags = await getDescriptionWithoutHashtags(description);
     try {
-        const post = await createPostDB(res.locals.userId, new Date(), url, descriptionWithoutHashtags);
+        const { rows: [post]} = await createPostDB(res.locals.userId, new Date(), url, descriptionWithoutHashtags);
         if (hashtags.length > 0) {
             await insertHashtagsIntoNewPost(hashtags, post)
         }
@@ -66,13 +66,13 @@ export async function editPost(req, res) {
         const { rows: [post] } = await searchPostById(id);
         if (!post) return res.status(404).send({ message: 'Não foi possível encontrar esse post.' });
         if (post.createdBy !== res.locals.userId) return res.status(403).send({ message: 'Você não pode editar esse registro.' });
-        const { rows: [newPost] } = await updatedPost(descriptionWithoutHashtags, id);
-        await removeHashtagsFromPost(hashtags, newPost);
+        const { rows: [newPost] } = await updatePost(descriptionWithoutHashtags, id);
 
         if (hashtags.length > 0) {
+            await removeHashtagsFromPost(hashtags, newPost);
             const uniqueHashtags = Array.from(new Set(hashtags));
             const newHashtags = uniqueHashtags.filter(tag => !newPost.hashtags.some(existingTag => existingTag.hashtag === tag));
-            await insertHashtagsIntoNewPost(newHashtags, newPost);
+            if(newHashtags.length > 0) await insertHashtagsIntoNewPost(newHashtags, newPost);
         }
 
         const { rows: [updatedPost] } = await searchPostByIdWithHashtags(id);
