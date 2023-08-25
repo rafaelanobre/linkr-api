@@ -68,6 +68,7 @@ export async function getTimelinePostsDB(){
         u.name AS "userName",
         u.photo AS "userPhoto",
         u.id AS "userId",
+        (SELECT COUNT(*) FROM comments c WHERE c."postId" = p.id) AS "commentCount",
         ARRAY_AGG(users.name) AS "usersLikedNames",
         COALESCE(
             json_agg(
