@@ -6,7 +6,7 @@ export async function getTrendingHashtags(){
 `)
 }
 
-export async function getPostsByHashtags(id){
+export async function getPostsByHashtags(id, limit, offset){
     return db.query(`
     SELECT 
         p.id AS "postId",
@@ -43,8 +43,9 @@ export async function getPostsByHashtags(id){
         p.id, u.id
     ORDER BY 
         p."createdAt" DESC
-    LIMIT 20;
-    `, [id])
+        LIMIT $2
+        OFFSET $3   
+    `, [id, limit, offset])
 }
 
 export async function selectExistingHashtag(hashtag){
