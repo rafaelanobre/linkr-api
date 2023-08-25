@@ -10,7 +10,8 @@ export async function publishPostForTimeline(req, res) {
         if (hashtags.length > 0) {
             await insertHashtagsIntoNewPost(hashtags, post)
         }
-        res.status(200).send(post.rows[0]);
+
+        res.status(200).send(post);
     } catch (err) {
         console.log(err)
         res.status(500).send(err.message);
