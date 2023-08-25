@@ -31,3 +31,13 @@ export async function usersfollower(req, res){
         res.status(500).send(err.message)
     }
 }
+
+export async function usersFollowing(req, res){
+    try {
+        const { rows: following } = await db.query(`SELECT "followingId" FROM followers WHERE "followerId" = $1`, [res.locals.userId])
+        res.status(200).send(following);
+    } catch (error) {
+        const errorMessage = error.message ? error.message : "Ocorreu um erro interno no servidor.";
+        res.status(500).send(errorMessage);
+    }
+}

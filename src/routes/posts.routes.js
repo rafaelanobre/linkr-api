@@ -6,7 +6,7 @@ import postSchema from "../schemas/post.schema.js";
 
 const postsRouter = Router();
 
-postsRouter.get("/posts", getPostsForTimeline);
+postsRouter.get("/posts", validateAuth, getPostsForTimeline);
 postsRouter.post("/posts", validateAuth, validateSchema(postSchema), publishPostForTimeline);
 postsRouter.patch("/posts/:id", validateAuth, editPost);
 postsRouter.get("/user/:id", getPostUserById);

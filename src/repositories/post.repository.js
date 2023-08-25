@@ -60,7 +60,7 @@ export async function deletePostDB(createdBy, postId){
   )
 }
 
-export async function getTimelinePostsDB(limit, offset){
+export async function getTimelinePostsDB(limit, offset,userId){
   return db.query(`
     SELECT 
         p.id AS "postId",
@@ -92,13 +92,15 @@ export async function getTimelinePostsDB(limit, offset){
         "postsHashtags" ph ON p.id = ph."postId"
     LEFT JOIN
         hashtags h ON ph."hashtagId" = h.id
+    WHERE 
+        p."createdBy" = $3 OR p."createdBy" IN (SELECT "followingId" FROM followers WHERE "followerId" = $3)
     GROUP BY
         p.id, u.id
     ORDER BY 
         p."createdAt" DESC
     LIMIT $1
     OFFSET $2;
-  `,[limit, offset]);
+  `,[limit, offset, userId]);
 }
 
 export async function updatePost(description, id){
