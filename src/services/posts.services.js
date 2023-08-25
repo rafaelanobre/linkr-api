@@ -33,7 +33,7 @@ export async function extractAndFormatHashtags(description) {
     return hashtags;
 }
 
-export async function getDescriptionWithoutHashtags(description) {
+export function getDescriptionWithoutHashtags(description) {
     return description.replace(/#(\w+)/g, '').trim();
 }
 
@@ -49,7 +49,7 @@ export async function insertHashtagsIntoNewPost(hashtags, post){
         }
 
         const { rows: [newTag] } = await selectExistingHashtag(tag);
-        await linkPostAndHashtag(post.rows[0].id, newTag.id);
+        await linkPostAndHashtag(post.id, newTag.id);
         }));
 }
 

@@ -1,5 +1,4 @@
-import { db } from "../database/database.connection.js";
-import { getCommentsByPostId } from "../repositories/comments.repository.js";
+import { createNewComment, getCommentsByPostId } from "../repositories/comments.repository.js";
 
 export async function postComments(req,res){
     const {id} = req.params;
