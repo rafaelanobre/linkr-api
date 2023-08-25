@@ -83,3 +83,21 @@ export async function editPost(req, res) {
         res.status(500).send(errorMessage);
     }
 }
+
+export async function repost(req, res) {
+    const {postId} = req.body;
+    
+   
+    try {
+       const Post = await db.query(`SELECT * FROM posts WHERE "id" = $1`,
+        [postId])
+        if(postId.rowCount === 0 ) return  res.status(404).send("Post not be found")
+        await createrepostDB(res.locals.userId, new Date(), Post.rows[0].url, Post.rows[0].description, postId, Post.rows[0].createdBy);
+
+        console.log(Post)
+        res.status(200).send(Post)
+    } catch (err) {
+        
+       res.status(500).send(err.message);
+    }
+}
